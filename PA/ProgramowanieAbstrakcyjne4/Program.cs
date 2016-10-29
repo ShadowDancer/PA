@@ -1,98 +1,133 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace ProgramowanieAbstrakcyjne4
 {
-    class Program
+    internal class Program
     {
-        static void Main(string[] args)
+        private static void Main(string[] args)
         {
-        }
-    }
-    
-    class Matrix<TType>
-    {
-        public TType[] _data { get; set; }
-        public uint Width { get; }
-    public uint Height {get; }
-        public Matrix(uint width, uint height)
-        {
-            _data = new TType[width * height];
+            Matrix<int>.AdditionOperator = (a, b) => a + b;
+            Matrix<int>.MultiplicationOperator = (a, b) => a*b;
+            SquareMatrix<int>.IsZeroOperator = a => a == 0;
+
+            Matrix<ComplexNumber>.AdditionOperator = (a, b) => a + b;
+            Matrix<ComplexNumber>.MultiplicationOperator = (a, b) => a * b;
+            SquareMatrix<ComplexNumber>.IsZeroOperator = a => a == new ComplexNumber(0, 0);
+
+            Console.WriteLine("Testing...");
+            Addition();
+            Multiplication();
+            DiagonalTests();
+            Complex();
+            Console.WriteLine("OK!");
+
+            
+
+            Console.ReadKey();
         }
 
-        public TType this[uint x, uint y] 
+        private static void Print<TType>(Matrix<TType> matrix)
+        {
+            for (uint y = 0; y < matrix.Height; y++)
             {
-                get
+                for (uint x = 0; x < matrix.Width; x++)
                 {
-                return _data[x * Width + y];
+                    Console.Write(matrix[x, y] + "\t");
                 }
-                set
-                {
-                _data[x * Width + y] = value;
-                }
+                Console.WriteLine();
             }
-
-        public static Matrix<TType> operator + (Matrix<TType> a, Matrix<TType> b)
-        {
-            if(a.Width != b.Width || a.Height != b.Height)
-            {
-                throw new InvalidOperationException("Dodawanie macierzy o innych wymiwarach");
-            }
-
-            Matrix<TType> result = new Matrix<TType>(a.Width, a.Height);
-            for(uint x = 0; x < a.Width; x ++)
-            {
-                for(uint y = 0; y < a.Height; y++)
-                {
-                    
-                }
-            }
-            return result;
         }
 
-        public static Matrix<TType> operator *(Matrix<TType> a, Matrix<TType> b)
+        #region Tests
+
+        private static void Addition()
         {
-            if (a.Height != b.Width)
+            var zero = new SquareMatrix<int>(2)
             {
-                throw new InvalidOperationException("Wysokość pierwszej macierzy musi być równa długości drugiej");
-            }
+                {0, 0},
+                {0, 0}
+            };
 
-            Matrix<TType> result = new Matrix<TType>(a.Width, b.Height);
-            for (uint x = 0; x < result.Width; x++)
+            Debug.Assert(zero + zero == zero);
+            var a = new SquareMatrix<int>(2)
             {
-                for (uint y = 0; y < result.Height; y++)
-                {
-                    throw new NotImplementedException("TODO");
-                }
-            }
-            return result;
+                {1, 0},
+                {0, 0}
+            };
+            var b = new SquareMatrix<int>(2)
+            {
+                {1, -1},
+                {1, 0}
+            };
+            Debug.Assert(a + b == new SquareMatrix<int>(2)
+            {
+                {2, -1},
+                {1, 0}
+            });
         }
-    }
 
-    class SquareMatrix<TType> : Matrix<TType>
-    {
-        public SquareMatrix(uint size) : base(size, size)
+        private static void Multiplication()
         {
-        }
-
-        public bool IsDiagonal()
-        {
-            for (uint x = 0; x < Width; x++)
+            var a = new Matrix<int>(3, 2)
             {
-                for (uint y = 0; y < Height; y++)
-                {
-                    if(x != y && !this[x, y].IsZero)
-                    {
-                        return false;
-                    }
-
-                }
-            }
-            return true;
+                {1, 0, 2},
+                {-1, 3, 1}
+            };
+            var b = new Matrix<int>(2, 3)
+            {
+                {3, 1},
+                {2, 1},
+                {1, 0}
+            };
+            Debug.Assert(a*b == new SquareMatrix<int>(2)
+            {
+                {5, 1},
+                {4, 2}
+            });
         }
+
+        private static void DiagonalTests()
+        {
+            Debug.Assert(new SquareMatrix<int>(5)
+            {
+                {0, 0, 0, 0, 0},
+                {0, -1, 0, 0, 0},
+                {0, 0, 6, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 21}
+            }.IsDiagonal());
+
+            Debug.Assert(!new SquareMatrix<int>(5)
+            {
+                {0, 0, 0, 0, 0},
+                {0, -1, 0, 1, 0},
+                {0, 0, 6, 0, 0},
+                {0, 0, 0, 0, 0},
+                {0, 0, 0, 0, 21}
+            }.IsDiagonal());
+        }
+
+
+        private static void Complex()
+        {
+            var a = new SquareMatrix<ComplexNumber>(2)
+            {
+                {new ComplexNumber(0, 5), new ComplexNumber(1, -2)},
+                {new ComplexNumber(0, 0), new ComplexNumber(0, 7)}
+            };
+            var b = new SquareMatrix<ComplexNumber>(2)
+            {
+                {new ComplexNumber(3, -1), new ComplexNumber(-1, -1)},
+                {new ComplexNumber(0, 0), new ComplexNumber(5, -2)}
+            };
+            Debug.Assert(a + b == new SquareMatrix<ComplexNumber>(2)
+            {
+                {new ComplexNumber(3, 4), new ComplexNumber(0, -3)},
+                {new ComplexNumber(0, 0), new ComplexNumber(5, 5)}
+            });
+        }
+
+        #endregion
     }
 }
