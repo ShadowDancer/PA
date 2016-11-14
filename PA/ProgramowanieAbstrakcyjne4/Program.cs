@@ -11,9 +11,16 @@ namespace ProgramowanieAbstrakcyjne4
             Matrix<int>.MultiplicationOperator = (a, b) => a*b;
             SquareMatrix<int>.IsZeroOperator = a => a == 0;
 
-            Matrix<ComplexNumber>.AdditionOperator = (a, b) => a + b;
-            Matrix<ComplexNumber>.MultiplicationOperator = (a, b) => a * b;
-            SquareMatrix<ComplexNumber>.IsZeroOperator = a => a == new ComplexNumber(0, 0);
+            Matrix<ComplexNumber<int, int>>.AdditionOperator =
+                (a, b) => new ComplexNumber<int, int>(a.Real + b.Real, a.Imaginary + b.Imaginary);
+
+            Matrix<ComplexNumber<int, int>>.MultiplicationOperator =
+                (a, b) => new ComplexNumber<int, int>(
+                    a.Real*b.Real - a.Imaginary*b.Imaginary,
+                    a.Imaginary*b.Real + a.Real*b.Imaginary);
+
+            SquareMatrix<ComplexNumber<int, int>>.IsZeroOperator = a => a.Real == 0 && a.Imaginary == 0;
+
 
             Console.WriteLine("Testing...");
             Addition();
@@ -22,7 +29,6 @@ namespace ProgramowanieAbstrakcyjne4
             Complex();
             Console.WriteLine("OK!");
 
-            
 
             Console.ReadKey();
         }
@@ -111,21 +117,23 @@ namespace ProgramowanieAbstrakcyjne4
 
         private static void Complex()
         {
-            var a = new SquareMatrix<ComplexNumber>(2)
+            Console.WriteLine("Complex");
+            var a = new SquareMatrix<ComplexNumber<int, int>>(2)
             {
-                {new ComplexNumber(0, 5), new ComplexNumber(1, -2)},
-                {new ComplexNumber(0, 0), new ComplexNumber(0, 7)}
+                {new ComplexNumber<int, int>(0, 5), new ComplexNumber<int, int>(1, -2)},
+                {new ComplexNumber<int, int>(0, 0), new ComplexNumber<int, int>(0, 7)}
             };
-            var b = new SquareMatrix<ComplexNumber>(2)
+            var b = new SquareMatrix<ComplexNumber<int, int>>(2)
             {
-                {new ComplexNumber(3, -1), new ComplexNumber(-1, -1)},
-                {new ComplexNumber(0, 0), new ComplexNumber(5, -2)}
+                {new ComplexNumber<int, int>(3, -1), new ComplexNumber<int, int>(-1, -1)},
+                {new ComplexNumber<int, int>(0, 0), new ComplexNumber<int, int>(5, -2)}
             };
-            Debug.Assert(a + b == new SquareMatrix<ComplexNumber>(2)
+            Debug.Assert(a + b == new SquareMatrix<ComplexNumber<int, int>>(2)
             {
-                {new ComplexNumber(3, 4), new ComplexNumber(0, -3)},
-                {new ComplexNumber(0, 0), new ComplexNumber(5, 5)}
+                {new ComplexNumber<int, int>(3, 4), new ComplexNumber<int, int>(0, -3)},
+                {new ComplexNumber<int, int>(0, 0), new ComplexNumber<int, int>(5, 5)}
             });
+            Debug.Assert(a.IsDiagonal() == false);
         }
 
         #endregion
